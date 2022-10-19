@@ -4,10 +4,13 @@ from tkinter import ttk
 from tkinter.filedialog import askopenfile
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg as figureCanvas
+from src.DecisionTree import DecisionTree
+from src.APRIORI import APRIORI
 from src.FPGrowth import FPGrowth
 from src.JsonReader import Json
 from src.regression import Regression
 from src.id3 import Id3
+import pandas as pd
 
 class GUI:
 
@@ -23,6 +26,8 @@ class GUI:
         self.already_draw = False
         self.already_draw_select = False
         self.selected_algorithm = None
+        self.dataa = None
+        self.balance_data = None
         
         self.frame_btn.pack(side=tk.LEFT, expand=True, padx=20)
         self.frame_graph.pack(side=tk.RIGHT, expand=True)
@@ -32,7 +37,7 @@ class GUI:
         self.root.geometry("770x480")
         self.root.configure(bg="white")
 
-        if (len(self.data) > 0) and not self.already_draw_select:
+        if ((len(self.data) > 0) or self.dataa is not None or self.balance_data is not None) and not self.already_draw_select:
             self.already_draw_select = True
             select_label = tk.Label(self.frame_btn, text="Select an algorithm to opereta the data", bg="white", font="Arial 10")
             select_label.pack()
@@ -53,11 +58,18 @@ class GUI:
         self.root.mainloop()
 
     def readFile(self):
-        path = askopenfile(mode='r', filetypes=[('JSON Files', '*.json')])
+        path = askopenfile(mode='r', filetypes=[('JSON Files', '*.json'),("Excel files", ".xlsx .xls"),("Data files", ".data")])
         
         if path is not None:
-            self.data = Json(path.name).read()
-            self.root.after(1, self.start)
+            if path.name.endswith('.xlsx') or path.name.endswith('.xls'):
+                self.dataa = pd.read_excel(path.name)
+                self.root.after(1, self.start)
+            elif path.name.endswith('.json'):
+                self.data = Json(path.name).read()
+                self.root.after(1, self.start)
+            elif path.name.endswith('.data'):
+                self.balance_data = pd.read_csv(path.name)
+                self.root.after(1, self.start)
             # self.executeRegression(x_name, y_name, x_data, y_data, data_to_predict)
     
     def insert_data(self):
@@ -70,11 +82,14 @@ class GUI:
             id3 = Id3(self.data)
             id3.start()
         elif selection == "Apriori":
-            pass
+            apriori = APRIORI(self.dataa)
+            apriori.start()
         elif selection == "FPGrowth":
             Fp = FPGrowth(self.data)
             Fp.start()
         elif selection == "Decision tree":
+            dTree = DecisionTree(self.balance_data)
+            dTree.start()
             pass
         elif selection == "Linear Regression":
             self.root.title("Linear Regression")
