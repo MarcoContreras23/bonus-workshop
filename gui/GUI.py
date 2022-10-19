@@ -66,7 +66,7 @@ class GUI:
             self.selected_algorithm = ttk.Combobox(
                 self.frame_btn,
                 state="readonly",
-                values=["Decision tree"],
+                values=["Decision tree", "SVM"],
             )
             self.selected_algorithm.bind("<<ComboboxSelected>>", self.execute_algorithm)
             self.selected_algorithm.pack()
@@ -80,16 +80,16 @@ class GUI:
         self.root.mainloop()
 
     def readFile(self):
-        path = askopenfile(mode='r', filetypes=[('JSON Files', '*.json'),("Excel files", ".xlsx .xls"),("Data files", ".data")])
+        path = askopenfile(mode='r', filetypes=[('JSON Files', '*.json'),("Excel files", ".xlsx .xls "),("Data files", ".data .csv")])
         
         if path is not None:
-            if path.name.endswith('.xlsx') or path.name.endswith('.xls'):
+            if path.name.endswith('.xlsx') or path.name.endswith('.xls') :
                 self.dataa = pd.read_excel(path.name)
                 self.root.after(1, self.start)
             elif path.name.endswith('.json'):
                 self.data = Json(path.name).read()
                 self.root.after(1, self.start)
-            elif path.name.endswith('.data'):
+            elif path.name.endswith('.data') or path.name.endswith('.csv'):
                 self.balance_data = pd.read_csv(path.name)
                 self.root.after(1, self.start)
             # self.executeRegression(x_name, y_name, x_data, y_data, data_to_predict)

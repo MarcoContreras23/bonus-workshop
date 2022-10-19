@@ -1,0 +1,11 @@
+{
+  "axis_x": {
+    "name": "Height",
+    "data": [180, 174, 184, 168, 178]
+  },
+  "axis_y": {
+    "name": "Weight",
+    "data": [75, 71, 83, 63, 70]
+  },
+  "data_to_predict": 172
+}
