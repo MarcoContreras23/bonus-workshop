@@ -4,8 +4,10 @@ from tkinter import ttk
 from tkinter.filedialog import askopenfile
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg as figureCanvas
+from src.FPGrowth import FPGrowth
 from src.JsonReader import Json
 from src.regression import Regression
+from src.id3 import Id3
 
 class GUI:
 
@@ -65,11 +67,13 @@ class GUI:
     def execute_algorithm(self, event):
         selection = self.selected_algorithm.get()
         if selection == "Id3":
-            pass
+            id3 = Id3(self.data)
+            id3.start()
         elif selection == "Apriori":
             pass
         elif selection == "FPGrowth":
-            pass
+            Fp = FPGrowth(self.data)
+            Fp.start()
         elif selection == "Decision tree":
             pass
         elif selection == "Linear Regression":
