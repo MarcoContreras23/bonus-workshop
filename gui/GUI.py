@@ -37,14 +37,36 @@ class GUI:
         self.root.geometry("770x480")
         self.root.configure(bg="white")
 
-        if ((len(self.data) > 0) or self.dataa is not None or self.balance_data is not None) and not self.already_draw_select:
+        if ((len(self.data) > 0) ) and not self.already_draw_select:
             self.already_draw_select = True
             select_label = tk.Label(self.frame_btn, text="Select an algorithm to opereta the data", bg="white", font="Arial 10")
             select_label.pack()
             self.selected_algorithm = ttk.Combobox(
                 self.frame_btn,
                 state="readonly",
-                values=["Id3", "Apriori", "FPGrowth", "Decision tree", "Linear Regression", "SVM"],
+                values=["Id3", "FPGrowth", "Linear Regression", "SVM"],
+            )
+            self.selected_algorithm.bind("<<ComboboxSelected>>", self.execute_algorithm)
+            self.selected_algorithm.pack()
+        if (self.dataa is not None ) and not self.already_draw_select:
+            self.already_draw_select = True
+            select_label = tk.Label(self.frame_btn, text="Select an algorithm to opereta the data", bg="white", font="Arial 10")
+            select_label.pack()
+            self.selected_algorithm = ttk.Combobox(
+                self.frame_btn,
+                state="readonly",
+                values=["Apriori"],
+            )
+            self.selected_algorithm.bind("<<ComboboxSelected>>", self.execute_algorithm)
+            self.selected_algorithm.pack()
+        if ( self.balance_data is not None) and not self.already_draw_select:
+            self.already_draw_select = True
+            select_label = tk.Label(self.frame_btn, text="Select an algorithm to opereta the data", bg="white", font="Arial 10")
+            select_label.pack()
+            self.selected_algorithm = ttk.Combobox(
+                self.frame_btn,
+                state="readonly",
+                values=["Decision tree"],
             )
             self.selected_algorithm.bind("<<ComboboxSelected>>", self.execute_algorithm)
             self.selected_algorithm.pack()
@@ -90,7 +112,6 @@ class GUI:
         elif selection == "Decision tree":
             dTree = DecisionTree(self.balance_data)
             dTree.start()
-            pass
         elif selection == "Linear Regression":
             self.root.title("Linear Regression")
             graph_label = tk.Label(self.frame_graph, text="Linear Regression Graph", font="Arial 15 bold", bg="white")
