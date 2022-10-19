@@ -20,46 +20,33 @@ class GUI:
         self.data = {}
         self.already_draw = False
         self.already_draw_select = False
+        self.selected_algorithm = None
         
         self.frame_btn.pack(side=tk.LEFT, expand=True, padx=20)
         self.frame_graph.pack(side=tk.RIGHT, expand=True)
     
     def start(self):
         self.root.title("Algorithms")
-        self.root.geometry("770x450")
+        self.root.geometry("770x480")
         self.root.configure(bg="white")
 
         if (len(self.data) > 0) and not self.already_draw_select:
             self.already_draw_select = True
             select_label = tk.Label(self.frame_btn, text="Select an algorithm to opereta the data", bg="white", font="Arial 10")
             select_label.pack()
-            select_algorithm = ttk.Combobox(
+            self.selected_algorithm = ttk.Combobox(
                 self.frame_btn,
                 state="readonly",
-                values=["Id3", "Apriori", "FPGrowth", "Decision tree", "K-Means", "SVM"],
+                values=["Id3", "Apriori", "FPGrowth", "Decision tree", "Linear Regression", "SVM"],
             )
-            select_algorithm.pack()
+            self.selected_algorithm.bind("<<ComboboxSelected>>", self.execute_algorithm)
+            self.selected_algorithm.pack()
         elif not self.already_draw:
             self.already_draw = True
             load_file_btn = tk.Button(self.frame_btn, text="Load File", command=self.readFile)
             load_file_btn.pack()
             load_console_btn = tk.Button(self.frame_btn, text="Insert data in console", command=self.insert_data)
             load_console_btn.pack()
-
-        """self.root.title("Linear Regression")
-        self.root.geometry("770x450")
-        self.root.configure(bg="white")
-
-        load_label = tk.Label(self.frame_btn, text="Select a JSON file with the data to operate", bg="white", font="Arial 10")
-        load_label.pack()
-
-        load_file_btn = tk.Button(self.frame_btn, text="Load File", command=self.readFile)
-        load_file_btn.pack()
-
-        graph_label = tk.Label(self.frame_graph, text="Linear Regression Graph", font="Arial 15 bold", bg="white")
-        graph_label.pack(pady=0)
-
-        self.graph("", "", [], [], Regression([], []))"""
 
         self.root.mainloop()
 
@@ -72,8 +59,28 @@ class GUI:
             # self.executeRegression(x_name, y_name, x_data, y_data, data_to_predict)
     
     def insert_data(self):
-        self.data = input("Insert the data in JSON format: ")
+        self.data = input("Insert the data: ")
         self.root.after(1, self.start)
+
+    def execute_algorithm(self, event):
+        selection = self.selected_algorithm.get()
+        if selection == "Id3":
+            pass
+        elif selection == "Apriori":
+            pass
+        elif selection == "FPGrowth":
+            pass
+        elif selection == "Decision tree":
+            pass
+        elif selection == "Linear Regression":
+            self.root.title("Linear Regression")
+            graph_label = tk.Label(self.frame_graph, text="Linear Regression Graph", font="Arial 15 bold", bg="white")
+            graph_label.pack(pady=0)
+
+            self.graph("", "", [], [], Regression([], []))
+            self.executeRegression(self.data[0], self.data[1], self.data[2], self.data[3], self.data[4])
+        elif selection == "SVM":
+            pass
 
     def executeRegression(self, x_name, y_name, x_data, y_data, data_to_predict):
         regression = Regression(x_data, y_data)
