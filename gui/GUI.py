@@ -39,7 +39,7 @@ class GUI:
 
         if ((len(self.data) > 0) ) and not self.already_draw_select:
             self.already_draw_select = True
-            select_label = tk.Label(self.frame_btn, text="Select an algorithm to opereta the data", bg="white", font="Arial 10")
+            select_label = tk.Label(self.frame_btn, text="Select an algorithm to operate the data", bg="white", font="Arial 10")
             select_label.pack()
             self.selected_algorithm = ttk.Combobox(
                 self.frame_btn,
@@ -50,7 +50,7 @@ class GUI:
             self.selected_algorithm.pack()
         if (self.dataa is not None ) and not self.already_draw_select:
             self.already_draw_select = True
-            select_label = tk.Label(self.frame_btn, text="Select an algorithm to opereta the data", bg="white", font="Arial 10")
+            select_label = tk.Label(self.frame_btn, text="Select an algorithm to operate the data", bg="white", font="Arial 10")
             select_label.pack()
             self.selected_algorithm = ttk.Combobox(
                 self.frame_btn,
@@ -61,7 +61,7 @@ class GUI:
             self.selected_algorithm.pack()
         if ( self.balance_data is not None) and not self.already_draw_select:
             self.already_draw_select = True
-            select_label = tk.Label(self.frame_btn, text="Select an algorithm to opereta the data", bg="white", font="Arial 10")
+            select_label = tk.Label(self.frame_btn, text="Select an algorithm to operate the data", bg="white", font="Arial 10")
             select_label.pack()
             self.selected_algorithm = ttk.Combobox(
                 self.frame_btn,
