@@ -1,6 +1,9 @@
+from cgitb import text
 import tkinter as tk
 from tkinter import ttk
 from tkinter.filedialog import askopenfile
+import matplotlib.pyplot as plt
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg as figureCanvas
 from src.JsonReader import Json
 from src.regression import Regression
 
@@ -14,12 +17,36 @@ class GUI:
         self.table = None
         self.data_to_predict = None
         self.predicted_data = None
+        self.data = {}
+        self.already_draw = False
+        self.already_draw_select = False
         
         self.frame_btn.pack(side=tk.LEFT, expand=True, padx=20)
         self.frame_graph.pack(side=tk.RIGHT, expand=True)
     
     def start(self):
-        self.root.title("Linear Regression")
+        self.root.title("Algorithms")
+        self.root.geometry("770x450")
+        self.root.configure(bg="white")
+
+        if (len(self.data) > 0) and not self.already_draw_select:
+            self.already_draw_select = True
+            select_label = tk.Label(self.frame_btn, text="Select an algorithm to opereta the data", bg="white", font="Arial 10")
+            select_label.pack()
+            select_algorithm = ttk.Combobox(
+                self.frame_btn,
+                state="readonly",
+                values=["Id3", "Apriori", "FPGrowth", "Decision tree", "K-Means", "SVM"],
+            )
+            select_algorithm.pack()
+        elif not self.already_draw:
+            self.already_draw = True
+            load_file_btn = tk.Button(self.frame_btn, text="Load File", command=self.readFile)
+            load_file_btn.pack()
+            load_console_btn = tk.Button(self.frame_btn, text="Insert data in console", command=self.insert_data)
+            load_console_btn.pack()
+
+        """self.root.title("Linear Regression")
         self.root.geometry("770x450")
         self.root.configure(bg="white")
 
@@ -32,7 +59,7 @@ class GUI:
         graph_label = tk.Label(self.frame_graph, text="Linear Regression Graph", font="Arial 15 bold", bg="white")
         graph_label.pack(pady=0)
 
-        self.graph("", "", [], [], Regression([], []))
+        self.graph("", "", [], [], Regression([], []))"""
 
         self.root.mainloop()
 
@@ -40,8 +67,13 @@ class GUI:
         path = askopenfile(mode='r', filetypes=[('JSON Files', '*.json')])
         
         if path is not None:
-            x_name, y_name, x_data, y_data, data_to_predict = Json(path.name).read()
-            self.executeRegression(x_name, y_name, x_data, y_data, data_to_predict)
+            self.data = Json(path.name).read()
+            self.root.after(1, self.start)
+            # self.executeRegression(x_name, y_name, x_data, y_data, data_to_predict)
+    
+    def insert_data(self):
+        self.data = input("Insert the data in JSON format: ")
+        self.root.after(1, self.start)
 
     def executeRegression(self, x_name, y_name, x_data, y_data, data_to_predict):
         regression = Regression(x_data, y_data)
