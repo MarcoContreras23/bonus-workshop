@@ -1,96 +1,101 @@
 import itertools
+import numpy as np
+import pandas as pd
+from mlxtend.frequent_patterns import apriori, association_rules
+from tkinter import Tk
+from tkinter.filedialog import askopenfilename
 
 class APRIORI:
 
-    def __init__(self, data):
-        self.data = data
-        self.minConfidence = 0
-        self.minSupport = 0
-        self.frecuentItemset = []
-        self.inicialItemset = []
+    # Loading the Data
+    data = pd.read_excel("resource/Online_Retail.xlsx")
+    data.head()
+    # Exploring the columns of the data
+    data.columns
+    print(data.columns)
+    # Exploring the different regions of transactions
+    data.Country.unique()
+    print(data.Country.unique())
+    # Stripping extra spaces in the description
+    data['Description'] = data['Description'].str.strip()
 
-    def start(self, minConfidence, minSupport):
-        self.minConfidence = minConfidence
-        self.minSupport = minSupport
-        rules = self.apriori()
+    # Dropping the rows without any invoice number
+    data.dropna(axis = 0, subset =['InvoiceNo'], inplace = True)
+    data['InvoiceNo'] = data['InvoiceNo'].astype('str')
 
-    # Generate algorithm APRIORI
-    def apriori(self):
-        print("data: ", self.data)
-        print("support percent", self.minSupport, " -- confidence percent", self.minConfidence)
-        occurence = self.generateCombination(self.data)
-        print("____________________________________________________________________________________")
-        print("Frecuent itemset: ", self.frecuentItemset[-1])
-        print("____________________________________________________________________________________")
-        rules = self.generateRules(self.frecuentItemset[-1])
+    # Dropping all transactions which were done on credit
+    data = data[~data['InvoiceNo'].str.contains('C')]
 
-    #Generate all possible combination of items without repetition and without elimination of items
-    def generateCombination(self, data):
-        combination = []
-        for transaction in data:
-            for i in range(0, len(transaction)):
-                combination.append(list(itertools.combinations(transaction, i + 1)))
-        for i in range(len(combination)):
-            print("____________________________________________________________________________________")
-            print("Itemset", i + 1)
-            print("K", i + 1, ":", combination[i])
-            newCombination = self.generateOccurence(combination[i])
-            if newCombination == False:
-                break
-        return combination
+    # Transactions done in France
+    basket_France = (data[data['Country'] =="France"]
+            .groupby(['InvoiceNo', 'Description'])['Quantity']
+            .sum().unstack().reset_index().fillna(0)
+            .set_index('InvoiceNo'))
 
-    #Generate occurence and support of each item
-    def generateOccurence(self, data):
-        occurence = {}
-        for transaction in data:
-            for item in self.data:
-                if set(transaction).issubset(set(item)):
-                    if transaction in occurence:
-                        occurence[transaction] += 1
-                    else:
-                        occurence[transaction] = 1
-        print("Occurence: ",occurence)
-        newOccurence = self.filterPhase(occurence)
-        if (newOccurence == False):
-            return False
-        else:
-            self.frecuentItemset.append(newOccurence)
-        return occurence
-    
-    # Filter phase of APRIORI
-    def filterPhase(self, occurence):
-        deloccurence = {}
-        for key, value in occurence.items():
-            occurence[key] = round(value / len(self.data),2)
-            if occurence[key] >= self.minSupport:
-                deloccurence[key] = occurence[key]
-        print("Support: ", occurence)
-        self.inicialItemset.append(occurence)
-        if len(deloccurence) == 0:
-            print("No itemset found")
-            return False
-        print("Delete post validate support percent")
-        print(deloccurence)
-        return deloccurence
+    # Transactions done in the United Kingdom
+    basket_UK = (data[data['Country'] =="United Kingdom"]
+            .groupby(['InvoiceNo', 'Description'])['Quantity']
+            .sum().unstack().reset_index().fillna(0)
+            .set_index('InvoiceNo'))
 
-    def generateRules(self, data):
-        print("Generate rules -->")
-        newList = []
-        rulesOver = []
-        print("data: ", data)
-        for key, value in data:
-            newList.append((key , value))
-            newList.append((value , key))
-        for key, value in newList:
-            for key2 in self.inicialItemset[0]:
-                if key in key2:
-                    for supportData in data:
-                        result = round(data[supportData] / self.inicialItemset[0][key2],2)
-                    print(key , " => ", value, "--> confidence: ", result)
-                    if result >= self.minConfidence:
-                        rule=(key , " => ", value, "--> confidence: ", result)
-                        rulesOver.append(rule)
-        print("____________________________________________________________________________________")
-        print("Rules over confidence percent: ")
-        for rule in rulesOver:
-            print(rule)
+    # Transactions done in Portugal
+    basket_Por = (data[data['Country'] =="Portugal"]
+            .groupby(['InvoiceNo', 'Description'])['Quantity']
+            .sum().unstack().reset_index().fillna(0)
+            .set_index('InvoiceNo'))
+
+    basket_Sweden = (data[data['Country'] =="Sweden"]
+            .groupby(['InvoiceNo', 'Description'])['Quantity']
+            .sum().unstack().reset_index().fillna(0)
+            .set_index('InvoiceNo'))
+    # Defining the hot encoding function to make the data suitable
+    # for the concerned libraries
+    def hot_encode(x):
+        if(x<= 0):
+            return 0
+        if(x>= 1):
+            return 1
+
+    # Encoding the datasets
+    basket_encoded = basket_France.applymap(hot_encode)
+    basket_France = basket_encoded
+
+    basket_encoded = basket_UK.applymap(hot_encode)
+    basket_UK = basket_encoded
+
+    basket_encoded = basket_Por.applymap(hot_encode)
+    basket_Por = basket_encoded
+
+    basket_encoded = basket_Sweden.applymap(hot_encode)
+    basket_Sweden = basket_encoded
+
+    # Building the model
+
+    print("FRANCE")
+    frq_items = apriori(basket_France, min_support = 0.05, use_colnames = True)
+
+    # Collecting the inferred rules in a dataframe
+    rules = association_rules(frq_items, metric ="lift", min_threshold = 1)
+    rules = rules.sort_values(['confidence', 'lift'], ascending =[False, False])
+    print(rules.head())
+    """
+    print("UNITED KINGDOM")
+    frq_items = apriori(basket_UK, min_support = 0.01, use_colnames = True)
+    rules = association_rules(frq_items, metric ="lift", min_threshold = 1)
+    rules = rules.sort_values(['confidence', 'lift'], ascending =[False, False])
+    print(rules.head())
+
+    print("PORTUGAL")
+    frq_items = apriori(basket_Por, min_support = 0.05, use_colnames = True)
+    rules = association_rules(frq_items, metric ="lift", min_threshold = 1)
+    rules = rules.sort_values(['confidence', 'lift'], ascending =[False, False])
+    print(rules.head())
+
+    print("SWEDEN")
+    frq_items = apriori(basket_Sweden, min_support = 0.05, use_colnames = True)
+    rules = association_rules(frq_items, metric ="lift", min_threshold = 1)
+    rules = rules.sort_values(['confidence', 'lift'], ascending =[False, False])
+    print(rules.head())
+    """
+
+   
