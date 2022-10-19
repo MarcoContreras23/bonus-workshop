@@ -5,7 +5,6 @@ from sklearn.model_selection import train_test_split
 
 class DecisionTree:
 
-
     X, t = make_classification(100, 5, n_classes=2, shuffle=True, random_state=10)
     X_train, X_test, t_train, t_test = train_test_split(
         X, t, test_size=0.3, shuffle=True, random_state=1)
